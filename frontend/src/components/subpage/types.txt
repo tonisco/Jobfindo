@@ -7,3 +7,10 @@ details
 pay-range
 length-full time, part time
 level-entry Internship Entry level Mid-Senior level senior executive
+
+company name
+email
+password
+image
+number of employees
+company details

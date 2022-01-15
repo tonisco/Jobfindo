@@ -15,3 +15,15 @@
 .main:hover .line {
 	@apply underline;
 }
+
+.input {
+	@apply border-2 border-rose-500 text-gray-900 focus:outline-none p-1 rounded-md w-full;
+}
+
+.clip {
+	clip-path: polygon(0% 0%, 55% 0%, 42.5% 100%, 0% 100%);
+}
+
+.clip-1 {
+	clip-path: polygon(0% 0%, 52.5% 0%, 40% 100%, 0% 100%);
+}
