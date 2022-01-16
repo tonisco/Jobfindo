@@ -1,5 +1,5 @@
 import React from "react"
-import JobListItem from "../ui/JobListItem"
+import JobListItem from "./JobListItem"
 
 const JobsList = () => {
 	return (

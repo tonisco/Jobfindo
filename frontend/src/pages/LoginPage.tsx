@@ -7,7 +7,7 @@ const LoginPage = () => {
 				<div className="hidden lg:flex h-full flex-col text-white gap-4 items-center justify-center">
 					<h1 className="text-3xl font-bold">Find your perfect</h1>
 					<h1 className="text-6xl uppercase font-bold text-rose-500">Candidates</h1>
-					<img src="/images/login.svg" alt="login-image" className="h-60" />
+					<img src="/images/login.svg" alt="login" className="h-60" />
 				</div>
 				<form className="p-4 flex flex-col items-center justify-center gap-4">
 					<h1 className="uppercase text-rose-500 text-4xl font-bold">Login</h1>

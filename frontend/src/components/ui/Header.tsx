@@ -14,7 +14,7 @@ const Header = () => {
 				<div className="flex gap-4 text-lg items-center text-white font-semibold">
 					<FaRegSave className="h-6 w-6" />
 					<Link to="/login">Login</Link>
-					<p className="bg-rose-500 py-2 px-4 rounded-lg">Register</p>
+					<p className="bg-rose-500 py-1 px-4 rounded-lg">Register</p>
 				</div>
 			</div>
 		</div>

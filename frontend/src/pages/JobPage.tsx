@@ -1,6 +1,6 @@
 import React from "react"
 import JobsList from "../components/subpage/JobsList"
-import JobDetails from "../components/ui/JobDetails"
+import JobDetails from "../components/subpage/JobDetails"
 
 const JobPage = () => {
 	return (
