@@ -1,10 +1,14 @@
-import React from "react"
+import React, { Dispatch } from "react"
 import { BsBriefcase } from "react-icons/bs"
 import { FaRegBuilding } from "react-icons/fa"
 
-const JobDetails = () => {
+interface JobDetailsProps {
+	setIsOpen: Dispatch<boolean>
+}
+
+const JobDetails = ({ setIsOpen }: JobDetailsProps) => {
 	return (
-		<div className="bg-white capitalize px-3 py-6 space-y-4 max-h-[88.5vh] w-[60%] overflow-y-scroll text-gray-900">
+		<div className="bg-white capitalize px-3 py-6 space-y-4 max-h-[88.5vh] w-[60%] overflow-y-scroll text-gray-900 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-200">
 			<div className="mb-3 space-y-2">
 				<h1 className="text-xl font-bold">senior web developer needed</h1>
 				<h3 className="">Ajob company limited - Lagos (remote)</h3>
@@ -24,7 +28,10 @@ const JobDetails = () => {
 				<p>currently recruiting</p>
 			</div>
 			<div className="flex gap-4">
-				<button className="capitalize bg-sky-800 hover:bg-sky-900 py-1 px-3 rounded-lg text-white shadow-md">
+				<button
+					className="capitalize bg-sky-800 hover:bg-sky-900 py-1 px-3 rounded-lg text-white shadow-md"
+					onClick={() => setIsOpen(true)}
+				>
 					apply
 				</button>
 				<button className="capitalize hover:bg-sky-100 border border-sky-800 text-sky-800 py-1 px-3 rounded-lg shadow-md">

@@ -20,10 +20,66 @@
 	@apply border-2 border-rose-500 text-gray-900 focus:outline-none p-1 rounded-md w-full;
 }
 
+.input-2 {
+	@apply w-full border-2 rounded-md border-sky-800 focus:outline-0 py-1 px-2;
+}
+
+.input-3 {
+	@apply w-full border-2 rounded-md border-sky-800 focus:outline-0;
+}
+
 .clip {
 	clip-path: polygon(0% 0%, 55% 0%, 42.5% 100%, 0% 100%);
 }
 
 .clip-1 {
 	clip-path: polygon(0% 0%, 52.5% 0%, 40% 100%, 0% 100%);
+}
+
+@-webkit-keyframes scale-up-center {
+	0% {
+		-webkit-transform: scale(0.5);
+		transform: scale(0.5);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+@keyframes scale-up-center {
+	0% {
+		-webkit-transform: scale(0.5);
+		transform: scale(0.5);
+	}
+	100% {
+		-webkit-transform: scale(1);
+		transform: scale(1);
+	}
+}
+
+.scale-up {
+	-webkit-animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+	animation: scale-up-center 0.4s cubic-bezier(0.39, 0.575, 0.565, 1) both;
+}
+
+.ReactModal__Overlay {
+	position: fixed;
+	z-index: 999999;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	background: rgba(0, 0, 0, 0.5);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.ReactModal__Content {
+	background: white;
+	max-height: calc(100vh - 2rem);
+	box-shadow: 0 0 30px 0 rgba(0, 0, 0, 0.25);
+	overflow-y: auto;
+	position: relative;
+	outline: none;
 }

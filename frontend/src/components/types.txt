@@ -1,9 +1,7 @@
 title
-company name
 location
 type - remote, onsite, hybrid
-number of employees
-details
+description
 pay-range
 length-full time, part time
 level-entry Internship Entry level Mid-Senior level senior executive
