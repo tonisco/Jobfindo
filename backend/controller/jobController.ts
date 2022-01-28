@@ -23,7 +23,7 @@ const getJobs: RequestHandler = asyncHandler(async (req, res) => {
 const getJob: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
 	try {
 		const { id } = req.params
-		const job = await Job.findById(id)
+		const job = await Job.findById(id).populate("company", "-password")
 		if (!job) {
 			res.status(404)
 			throw new Error("Job not found")
@@ -62,7 +62,7 @@ const addJob: RequestHandler<{}, {}, JobInput> = asyncHandler(async (req, res) =
 			applicationDeadline,
 			company: req.user._id,
 		})
-		res.status(200).json({ message: "Job successfully created", data: job })
+		res.status(200).json({ message: "Job successfully created" })
 	} catch (error) {
 		let e = (error as Error).message
 		res.status(500)
@@ -139,7 +139,7 @@ const applyJob: RequestHandler<{ id: string }, {}, ApplicationTypes> = asyncHand
 				res.status(404)
 				throw new Error(`Job with id-${id} does not exist`)
 			}
-			jobs.applications.push({ cv, email, full_name, job, location, phone })
+			jobs.application.push({ cv, email, full_name, job, location, phone })
 			jobs.total_applicants = jobs.total_applicants++
 			jobs.save()
 			res.status(200).json({ message: "Application successful" })
@@ -153,10 +153,10 @@ const applyJob: RequestHandler<{ id: string }, {}, ApplicationTypes> = asyncHand
 //desc: get company job post
 //route: GET /api/jobs/company
 //access private
-const companyJobs: RequestHandler = asyncHandler(async (req, res) => {
+const companyJobs: RequestHandler<{}> = asyncHandler(async (req, res) => {
 	try {
 		const jobs = await Job.find({ company: req.user })
-		res.status(200).json(jobs)
+		res.status(200).json({ data: jobs })
 	} catch (error) {
 		const err = (error as Error).message
 		res.status(500)

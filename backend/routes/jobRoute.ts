@@ -14,7 +14,7 @@ const router = Router()
 
 router.route("/").get(getJobs).post(isLoggedIn, addJob)
 
-router.get("/company", companyJobs)
+router.get("/company", isLoggedIn, companyJobs)
 
 router.post("/apply/:id", applyJob)
 

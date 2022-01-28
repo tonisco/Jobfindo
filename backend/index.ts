@@ -41,8 +41,8 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
 	next()
 }
 
-app.use(errorHandler)
 app.use(notFound)
+app.use(errorHandler)
 
 app.listen(PORT, () => {
 	console.log(`App is listening on port ${PORT}`)

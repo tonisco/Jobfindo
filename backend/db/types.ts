@@ -35,6 +35,6 @@ export interface ApplicationTypes {
 
 export interface JobTypes extends JobInput, Document {
 	company: Types.ObjectId
-	applications: ApplicationTypes[]
+	application: ApplicationTypes[]
 	total_applicants: number
 }

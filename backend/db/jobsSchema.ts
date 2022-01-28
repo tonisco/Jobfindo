@@ -24,6 +24,7 @@ const JobSchema = new Schema(
 				cv: { type: String, required: true },
 			},
 		],
+		total_applicants: { type: Number, default: 0 },
 	},
 	{ timestamps: true }
 )
