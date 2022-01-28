@@ -1,17 +1,23 @@
 import React, { Dispatch } from "react"
 import { BsBriefcase } from "react-icons/bs"
 import { FaRegBuilding } from "react-icons/fa"
+import { useGetJobByIdQuery } from "../../app/api"
 
 interface JobDetailsProps {
 	setIsOpen: Dispatch<boolean>
+	job: string
 }
 
-const JobDetails = ({ setIsOpen }: JobDetailsProps) => {
+const JobDetails = ({ setIsOpen, job }: JobDetailsProps) => {
+	const { data } = useGetJobByIdQuery(job, { skip: !job })
+
 	return (
 		<div className="bg-white capitalize px-3 py-6 space-y-4 max-h-[88.5vh] w-[60%] overflow-y-scroll text-gray-900 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-200">
 			<div className="mb-3 space-y-2">
 				<h1 className="text-xl font-bold">senior web developer needed</h1>
-				<h3 className="">Ajob company limited - Lagos (remote)</h3>
+				<h3 className="">
+					{data?.company.name} - {data?.location} ({data?.type})
+				</h3>
 			</div>
 			<div className="text-sm space-y-3">
 				<div className="normal-case text-sm">
