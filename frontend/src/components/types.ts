@@ -22,12 +22,15 @@ export interface CompanyType {
 }
 
 export interface ApplicationTypes {
-	job: string
 	full_name: string
 	email: string
-	location: string
+	address: string
 	phone: string
 	cv: string
+	createdAt: Date
+	updatedAt: Date
+	cover_letter: string
+	_id: string
 }
 
 export interface JobType extends JobInput {
@@ -36,7 +39,7 @@ export interface JobType extends JobInput {
 	total_applicants: number
 	createdAt: Date
 	updatedAt: Date
-	_id: "61edcdd8ec921f8e5fa7fcf6"
+	_id: string
 }
 
 export interface UserDetails {
@@ -60,4 +63,10 @@ export interface SignupInput {
 	image: string
 	numberOfEmployees: string
 	companyDetails: string
+}
+
+export interface ErrorData {
+	data: {
+		message: string
+	}
 }

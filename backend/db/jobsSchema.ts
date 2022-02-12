@@ -1,5 +1,18 @@
 import { Schema, model } from "mongoose"
+import { string } from "zod"
 import { JobTypes } from "./types"
+
+const ApplicationSchema = new Schema(
+	{
+		full_name: { type: String, required: true },
+		email: { type: String, required: true },
+		address: { type: String, required: true },
+		phone: { type: String, required: true },
+		cover_letter: { type: String, default: "" },
+		cv: { type: String },
+	},
+	{ timestamps: true }
+)
 
 const JobSchema = new Schema(
 	{
@@ -15,15 +28,7 @@ const JobSchema = new Schema(
 		length: { type: String, required: true },
 		level: { type: String, required: true },
 		applicationDeadline: { type: Date },
-		application: [
-			{
-				full_name: { type: String, required: true },
-				email: { type: String, required: true },
-				location: { type: String, required: true },
-				phone: { type: String, required: true },
-				cv: { type: String, required: true },
-			},
-		],
+		application: [ApplicationSchema],
 		total_applicants: { type: Number, default: 0 },
 	},
 	{ timestamps: true }

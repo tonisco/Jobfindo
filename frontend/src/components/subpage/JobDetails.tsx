@@ -1,7 +1,13 @@
-import React, { Dispatch } from "react"
+import React, { Dispatch, useEffect, useState } from "react"
 import { BsBriefcase } from "react-icons/bs"
 import { FaRegBuilding } from "react-icons/fa"
+import parse from "html-react-parser"
 import { useGetJobByIdQuery } from "../../app/api"
+import { useParams } from "react-router-dom"
+import Toast, { toastError } from "../ui/Toast"
+import { ErrorData } from "../types"
+import Spinner from "../ui/Spinner"
+import Moment from "react-moment"
 
 interface JobDetailsProps {
 	setIsOpen: Dispatch<boolean>
@@ -9,119 +15,118 @@ interface JobDetailsProps {
 }
 
 const JobDetails = ({ setIsOpen, job }: JobDetailsProps) => {
-	const { data } = useGetJobByIdQuery(job, { skip: !job })
+	const [id, setId] = useState<string>()
+	const [hasExpired, setHasExpired] = useState<boolean>(true)
+
+	const { data, isLoading, error, isError } = useGetJobByIdQuery(id, { skip: !id })
+
+	const params = useParams()
+
+	useEffect(() => {
+		let jobId = params.id
+		if (!jobId) {
+			if (job) {
+				setId(job)
+			}
+		} else {
+			setId(jobId)
+		}
+	}, [job, params.id])
+
+	useEffect(() => {
+		if (error) {
+			toastError((error as ErrorData).data.message)
+		}
+	}, [error])
+
+	useEffect(() => {
+		const currentDate = new Date().getTime() / 1000
+		if (data && data.applicationDeadline) {
+			let expireDate = new Date(data.applicationDeadline).getTime() / 1000
+			setHasExpired(currentDate > expireDate)
+		}
+	}, [data])
 
 	return (
-		<div className="bg-white capitalize px-3 py-6 space-y-4 max-h-[88.5vh] w-[60%] overflow-y-scroll text-gray-900 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-200">
-			<div className="mb-3 space-y-2">
-				<h1 className="text-xl font-bold">senior web developer needed</h1>
-				<h3 className="">
-					{data?.company.name} - {data?.location} ({data?.type})
-				</h3>
+		<>
+			<Toast />
+			<div className="bg-white capitalize px-6 md:px-3 py-6 space-y-4 h-full w-full md:w-[60%] overflow-y-scroll text-gray-900 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-200">
+				{isLoading ? (
+					<Spinner />
+				) : isError ? (
+					<h1 className="text-center text-2xl">Job does not exist </h1>
+				) : (
+					data && (
+						<>
+							<div className="mb-3 space-y-2">
+								<h1 className="text-xl font-bold">{data?.title}</h1>
+								<h3 className="">
+									{data?.company.name} - {data?.location} ({data?.type})
+								</h3>
+							</div>
+							<div className="text-sm space-y-3">
+								<div className="normal-case text-sm">
+									<span>
+										<Moment fromNow>{data.createdAt}</Moment> -
+									</span>
+									<span className="text-sky-800">
+										{" "}
+										{data?.total_applicants} applicants
+									</span>
+								</div>
+								<div className="flex gap-2 items-center">
+									<BsBriefcase />{" "}
+									<p>
+										{data?.length} - {data?.level}
+									</p>
+								</div>
+								<div className="flex gap-2 items-center">
+									<FaRegBuilding />
+									<p>{data?.company.numberOfEmployees} employees</p>
+								</div>
+								<p className="pt-2 text-base">
+									{hasExpired ? "Job expired" : "currently recruiting"}
+								</p>
+							</div>
+							{!hasExpired && (
+								<div className="flex gap-4">
+									<button
+										className="capitalize bg-sky-800 hover:bg-sky-900 py-1 px-3 rounded-lg text-white shadow-md"
+										onClick={() => setIsOpen(true)}
+									>
+										apply
+									</button>
+									<button className="capitalize hover:bg-sky-100 border border-sky-800 text-sky-800 py-1 px-3 rounded-lg shadow-md">
+										save
+									</button>
+								</div>
+							)}
+							<div className="py-2 space-y-2 normal-case tracking-wide flex flex-col gap-2">
+								{parse(data.description)}
+								<div className="space-y-3 mt-4">
+									<h1 className="font-bold text-xl">About the Company</h1>
+									<div className="flex gap-3 items-center text-lg capitalize">
+										<img
+											className="h-20 w-20 object-contain"
+											src="/images/image.png"
+											alt="company logo"
+										/>
+										<h3 className="font-bold">{data.company.name}</h3>
+									</div>
+									<div className="space-y-2 ">
+										<h4>
+											Staff and Recruiting - {data.company.numberOfEmployees}{" "}
+											employees
+										</h4>
+										<p>{data.company.companyDetails}</p>
+									</div>
+								</div>
+							</div>
+						</>
+					)
+				)}
 			</div>
-			<div className="text-sm space-y-3">
-				<div className="normal-case text-sm">
-					<span>5 days -</span>
-					<span className="text-sky-800"> 12 applicants</span>
-				</div>
-				<div className="flex gap-2 items-center">
-					<BsBriefcase /> <p>full time - mid-Senior level</p>
-				</div>
-				<div className="flex gap-2 items-center">
-					<FaRegBuilding />
-					<p>20 - 30 employees</p>
-				</div>
-				<p>currently recruiting</p>
-			</div>
-			<div className="flex gap-4">
-				<button
-					className="capitalize bg-sky-800 hover:bg-sky-900 py-1 px-3 rounded-lg text-white shadow-md"
-					onClick={() => setIsOpen(true)}
-				>
-					apply
-				</button>
-				<button className="capitalize hover:bg-sky-100 border border-sky-800 text-sky-800 py-1 px-3 rounded-lg shadow-md">
-					save
-				</button>
-			</div>
-			<div className="py-2 space-y-2 normal-case tracking-wide flex flex-col gap-2">
-				<p>
-					We're currently hiring a Sr FullStack Java Developer to work for one of our
-					clients. A fast-growing online pharmacy startup located in Metro Vancouver,
-					British Columbia, Canada.
-				</p>
-				<p>START REMOTELY AND THEN RELOCATE!</p>
-				<div className="">
-					<p>What skills are we looking for, in this opportunity?</p>
-					<ul className="list-disc list-inside space-y-1">
-						<li>Must-have skills: Sql 4 Year(s) | Java 4 Year(s) | Spring 2 Year(s)</li>
-						<li>Language required: English</li>
-					</ul>
-				</div>
-				<div className="">
-					<p className="font-bold">Qualifications (Must-Haves):</p>
-					<ul className="list-disc list-inside space-y-1">
-						<li>
-							Bachelor in Computer Science, Engineering stream or relevant equivalent
-							experience.
-						</li>
-						<li>
-							Intermediate knowledge of object-oriented design, data structures,
-							algorithms, and SQL.
-						</li>
-						<li>
-							Deep understanding of writing modular, well-documented, testable,
-							maintainable code.
-						</li>
-						<li>Understand and analyze data and progress effectively.</li>
-						<li>
-							They are motivated to drive tasks to completion and take ownership of
-							projects.
-						</li>
-						<li>Ability to work in a fast-paced and agile development environment.</li>
-						<li>
-							Genuinely excited about working in a growth-stage startup, learning, and
-							solving problems without getting constrained by current knowledge or
-							experience.
-						</li>
-						<li>4 to 7 years of relevant experience.</li>
-					</ul>
-					Considered an asset:
-					<ul>
-						<li>Full-stack experience.</li>
-						<li>Experience programming in Java and with the Play/Spring framework.</li>
-						<li>
-							Experience building operationally critical services, especially in
-							eCommerce.
-						</li>
-					</ul>
-				</div>
-				<div className="space-y-3 mt-4">
-					<h1 className="font-bold text-xl">About the Company</h1>
-					<div className="flex gap-3 items-center text-lg capitalize">
-						<img
-							className="h-20 w-20 object-contain"
-							src="/images/image.png"
-							alt="company logo"
-						/>
-						<h3 className="font-bold">Ajob company limited</h3>
-					</div>
-					<div className="space-y-2 text-sm">
-						<h4>Staff and Recruiting - 5-10 emoloyees</h4>
-						<p>
-							Lorem ipsum dolor sit amet consectetur adipisicing elit. Amet aspernatur
-							assumenda ex at, sunt eius quos nulla quae ipsa repudiandae, quod
-							mollitia corrupti vero temporibus. Vel, facere. Dolorum vel
-							exercitationem modi omnis minima assumenda atque. Dolore quas optio hic
-							eos voluptate autem reiciendis neque temporibus tenetur, aspernatur
-							minima aliquam, quidem exercitationem? Facilis iusto recusandae
-							reprehenderit? Nihil aliquid consectetur reiciendis enim ullam deleniti
-							ipsum sunt provident.
-						</p>
-					</div>
-				</div>
-			</div>
-		</div>
+		</>
 	)
 }
 

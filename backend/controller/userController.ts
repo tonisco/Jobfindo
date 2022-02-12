@@ -2,6 +2,7 @@ import { RequestHandler } from "express"
 import asyncHandler from "express-async-handler"
 import createToken from "../auth/token"
 import Company from "../db/companySchema"
+import { imageBucket } from "../db/config"
 import { CompanyInput } from "../db/types"
 
 // desc: sign up a user
@@ -65,4 +66,55 @@ const login: RequestHandler<{}, {}, { email: string; password: string }> = async
 	}
 )
 
-export { login, register }
+// desc: update Company Details
+// route: POST /api/auth/user
+// access: Private
+const editDetails: RequestHandler<any, {}, CompanyInput> = asyncHandler(async (req, res, next) => {
+	try {
+		const { companyDetails, email, name, numberOfEmployees } = req.body
+		const company = await Company.findById(req.user._id)
+		if (company) {
+			company.companyDetails = companyDetails
+			company.email = email
+			company.name = name
+			company.numberOfEmployees = numberOfEmployees
+			if (req.file) {
+				if (company.image) {
+					const hasImage = await imageBucket.find({ filename: company.image }).toArray()
+					if (hasImage && hasImage.length > 0) {
+						await imageBucket.delete(hasImage[0]._id)
+					}
+				}
+				company.image = req.file.filename
+			}
+			await company.save()
+			const token = createToken(req.user._id)
+			res.status(201).json({
+				data: {
+					companyDetails,
+					email,
+					name,
+					numberOfEmployees,
+					token,
+					image: company.image,
+				},
+				message: "Company details updated",
+			})
+		}
+	} catch (error) {
+		next(error)
+	}
+})
+
+// desc: get Company logo
+// route: api/auth/image/:name
+// access: public
+const getImage: RequestHandler<{ name: string }> = asyncHandler(async (req, res) => {
+	try {
+		imageBucket.openDownloadStreamByName(req.params.name).pipe(res)
+	} catch (error) {
+		res.json("")
+	}
+})
+
+export { login, register, editDetails, getImage }

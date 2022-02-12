@@ -1,6 +1,6 @@
-import React, { useMemo } from "react"
-import { Cell, Column, usePagination, useTable } from "react-table"
-import { datas } from "../testdata"
+import React from "react"
+import { useTable } from "react-table"
+import { ApplicationTypes, JobType } from "../types"
 
 export interface columnsType {
 	job_details: string
@@ -9,41 +9,18 @@ export interface columnsType {
 	id: number
 }
 
-const Table = () => {
-	const columns = useMemo<Column<columnsType>[]>(
-		() => [
-			{
-				Header: "Job Details",
-				accessor: "job_details" as keyof columnsType,
-			},
-			{
-				Header: "Applicants",
-				accessor: "applicants" as keyof columnsType,
-			},
-			{
-				Header: "Date Modified",
-				accessor: "date_modified" as keyof columnsType,
-			},
-			{
-				accessor: "edit" as keyof columnsType,
-				Cell: (row: Cell<columnsType>) => (
-					<div
-						onClick={() => console.log(row.row.original.id)}
-						className="text-xs sm:text-base px-1 sm:px-3 py-1 my-1 bg-sky-800 text-white cursor-pointer"
-					>
-						DETAILS
-					</div>
-				),
-			},
-		],
-		[]
-	)
+interface TableProps {
+	data: JobType[] | ApplicationTypes[]
+	columns: any
+}
 
-	const data = useMemo<columnsType[]>(() => datas, [])
-
+const Table = ({ columns, data }: TableProps) => {
 	const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable<
-		columnsType
-	>({ columns, data }, usePagination)
+		JobType | ApplicationTypes
+	>({
+		columns,
+		data,
+	})
 
 	return (
 		<table {...getTableProps()} className="w-full mt-6">
@@ -62,11 +39,11 @@ const Table = () => {
 				{rows.map((row) => {
 					prepareRow(row)
 					return (
-						<tr {...row.getRowProps()} className="truncate space-x-1">
+						<tr {...row.getRowProps()} className="space-x-1">
 							{row.cells.map((cell) => (
 								<td
 									{...cell.getCellProps()}
-									className="text-xs sm:text-base truncate max-w-[5.1rem] sm:max-w-full border"
+									className="text-xs sm:text-base max-w-[5.1rem] sm:max-w-full border"
 								>
 									{cell.render("Cell")}
 								</td>

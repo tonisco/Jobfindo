@@ -9,7 +9,8 @@ const Pagination = () => {
 				<p
 					key={i}
 					className={`cursor-pointer transition-all ${
-						i + 1 === current && "text-sky-800 border border-sky-800 px-2 bg-gray-100"
+						i + 1 === current &&
+						"text-sky-800 border border-sky-800 rounded px-2 bg-gray-100"
 					}`}
 					onClick={() => setCurrent(i + 1)}
 				>

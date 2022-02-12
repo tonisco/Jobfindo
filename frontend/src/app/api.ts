@@ -28,14 +28,14 @@ export const getJobApi = createApi({
 })
 
 export const getCompanyJobsApi = createApi({
-	reducerPath: "companyJob",
+	reducerPath: "companyJobs",
 	baseQuery: fetchBaseQuery({
 		baseUrl: "http://localhost:5000/api/jobs/company",
 		prepareHeaders(headers, getState) {
 			const state = getState.getState() as RootState
 			const token = state.User.user.token
 			if (token) {
-				headers.set("authorization", `Bearer ${token}3`)
+				headers.set("authorization", `Bearer ${token}`)
 			}
 			headers.set("Content-Type", "application/json")
 			return headers
@@ -43,7 +43,7 @@ export const getCompanyJobsApi = createApi({
 	}),
 	endpoints: (builder) => ({
 		companyJobs: builder.query<JobType[], null>({
-			query: () => "/",
+			query: () => ({ url: "/" }),
 			transformResponse: (data: { data: JobType[] }) => data.data,
 		}),
 		companyJobsCreate: builder.mutation<{ message: string }, { input: JobInput }>({
@@ -63,6 +63,27 @@ export const getCompanyJobsApi = createApi({
 	}),
 })
 
+export const getCompanyJobApi = createApi({
+	baseQuery: fetchBaseQuery({
+		baseUrl: "http://localhost:5000/api/jobs/company",
+		prepareHeaders: (headers, { getState }) => {
+			const state = getState() as RootState
+			let token = state.User.user.token
+			if (token) {
+				headers.set("authorization", `Bearer ${token}`)
+			}
+			return headers
+		},
+	}),
+	reducerPath: "companyJob",
+	endpoints: (builder) => ({
+		companyJob: builder.query<JobType, string>({
+			query: (id) => ({ url: `/${id}` }),
+			transformResponse: (data: { data: JobType }) => data.data,
+		}),
+	}),
+})
+
 export const { useGetAllJobsQuery } = getJobsApi
 export const { useGetJobByIdQuery, useApplyJobMutation } = getJobApi
 export const {
@@ -71,3 +92,4 @@ export const {
 	useCompanyJobDeleteMutation,
 	useCompanyJobsEditMutation,
 } = getCompanyJobsApi
+export const { useCompanyJobQuery } = getCompanyJobApi

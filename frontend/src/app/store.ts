@@ -11,7 +11,7 @@ import {
 } from "redux-persist"
 import storage from "redux-persist/lib/storage"
 import counterReducer from "../features/counter/counterSlice"
-import { getJobApi, getJobsApi, getCompanyJobsApi } from "./api"
+import { getJobApi, getJobsApi, getCompanyJobsApi, getCompanyJobApi } from "./api"
 import User from "./slice"
 
 const persistConfig = {
@@ -25,6 +25,7 @@ const reducer = combineReducers({
 	[getJobsApi.reducerPath]: getJobsApi.reducer,
 	[getJobApi.reducerPath]: getJobApi.reducer,
 	[getCompanyJobsApi.reducerPath]: getCompanyJobsApi.reducer,
+	[getCompanyJobApi.reducerPath]: getCompanyJobApi.reducer,
 	User: persistReducers,
 })
 
@@ -35,7 +36,12 @@ export const store = configureStore({
 			serializableCheck: {
 				ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
 			},
-		}).concat(getJobsApi.middleware, getJobApi.middleware, getCompanyJobsApi.middleware)
+		}).concat(
+			getJobsApi.middleware,
+			getJobApi.middleware,
+			getCompanyJobsApi.middleware,
+			getCompanyJobApi.middleware
+		)
 	},
 })
 

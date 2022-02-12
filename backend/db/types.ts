@@ -25,12 +25,12 @@ export interface CompanyTypes extends CompanyInput, Document {
 }
 
 export interface ApplicationTypes {
-	job: Types.ObjectId
 	full_name: string
 	email: string
-	location: string
+	address: string
 	phone: string
 	cv: string
+	cover_letter: string
 }
 
 export interface JobTypes extends JobInput, Document {
