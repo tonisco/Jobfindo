@@ -2,8 +2,10 @@ import React, { useEffect, useMemo, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 import { Cell, Column } from "react-table"
 import { useCompanyJobQuery } from "../app/api"
+import { useAppDispatch, useAppSelector } from "../app/hooks"
+import { logout } from "../app/slice"
 import ApplicationDetails from "../components/subpage/ApplicationDetails"
-import { ApplicationTypes, ErrorData } from "../components/types"
+import { ApplicationTypes, ErrorData } from "../components/types/types"
 import Modal from "../components/ui/Modal"
 import Spinner from "../components/ui/Spinner"
 import Table from "../components/ui/Table"
@@ -19,16 +21,25 @@ const ApplicationPage = () => {
 
 	const { data, error, isLoading, isError } = useCompanyJobQuery(id!, { skip: !id })
 
+	const { user } = useAppSelector((state) => state.User)
+	const dispatch = useAppDispatch()
+
+	useEffect(() => {
+		if (!user) {
+			navigate("/login")
+		}
+	}, [user, navigate])
+
 	useEffect(() => {
 		if (error) {
 			let err = (error as ErrorData).data.message
 			if (err === "Not authorized, token failed") {
-				navigate("/login")
+				dispatch(logout())
 			} else {
 				toastError(err)
 			}
 		}
-	}, [error, navigate])
+	}, [error, dispatch])
 
 	useEffect(() => {
 		if (selected && data) {
@@ -60,8 +71,6 @@ const ApplicationPage = () => {
 		],
 		[]
 	)
-
-	console.log(data)
 
 	return (
 		<>

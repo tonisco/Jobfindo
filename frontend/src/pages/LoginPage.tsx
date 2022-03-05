@@ -1,7 +1,8 @@
 import React, { FormEvent, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { clearMessage, login } from "../app/slice"
+import AccountInput from "../components/form/AccountInput"
 import Toast, { toastError, toastSuccess } from "../components/ui/Toast"
 
 const LoginPage = () => {
@@ -25,10 +26,10 @@ const LoginPage = () => {
 			toastSuccess(message)
 		}
 		dispatch(clearMessage())
-	}, [error, message])
+	}, [error, message, dispatch])
 
 	useEffect(() => {
-		if (user.name) {
+		if (user) {
 			navigate("/dashboard")
 		}
 	}, [user, navigate])
@@ -48,26 +49,20 @@ const LoginPage = () => {
 						onSubmit={submit}
 					>
 						<h1 className="uppercase text-rose-500 text-4xl font-bold">Login</h1>
-						<div className="flex flex-col gap-1 text-lg w-[60%]">
-							<label htmlFor="email">Email</label>
-							<input
-								type="email"
-								id="email"
-								className="input"
-								value={email}
-								onChange={(e) => setEmail(e.target.value)}
-							/>
-						</div>
-						<div className="flex flex-col gap-1 text-lg w-[60%]">
-							<label htmlFor="password">Password</label>
-							<input
-								type="password"
-								id="password"
-								className="input"
-								value={password}
-								onChange={(e) => setPassword(e.target.value)}
-							/>
-						</div>
+						<AccountInput
+							changeValue={setEmail}
+							id="email"
+							label="Email"
+							type="email"
+							value={email}
+						/>
+						<AccountInput
+							changeValue={setPassword}
+							id="password"
+							label="Password"
+							type="password"
+							value={password}
+						/>
 						<button
 							className={`bg-rose-500 text-white py-2 px-4 rounded-lg uppercase ${
 								loading ? "bg-rose-700 cursor-not-allowed" : "hover:bg-rose-600"
@@ -76,6 +71,12 @@ const LoginPage = () => {
 						>
 							Login
 						</button>
+						<p className="text-sm">
+							Don't have an account?{"  "}
+							<Link to="/register" className="text-rose-500 underline">
+								Register
+							</Link>
+						</p>
 					</form>
 				</div>
 				<div className="hidden lg:block h-full w-full clip bg-cyan-400 absolute top-0 left-0 z-0">

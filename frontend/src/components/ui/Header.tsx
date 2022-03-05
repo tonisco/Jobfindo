@@ -1,5 +1,4 @@
 import React from "react"
-import { FaRegSave } from "react-icons/fa"
 import { Link } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
 import { logout } from "../../app/slice"
@@ -11,29 +10,36 @@ const Header = () => {
 
 	return (
 		<div className=" bg-sky-800">
-			<div className="flex justify-between max-w-5xl px-4 md:px-0 py-4 items-center mx-auto">
+			<div className="flex justify-between max-w-5xl px-4 lg:px-0 py-4 items-center mx-auto gap-4">
 				<Link to="/" className="text-xl md:text-3xl text-rose-500 font-bold mont">
-					Job Findo
+					JobFindo
 				</Link>
 				<SearchBar />
-				{user.name ? (
-					<div className="flex gap-2 sm:gap-4 items-center text-white font-semibold">
-						<FaRegSave className="h-6 w-6" />
-						<Link to="/dashboard">Dashboard</Link>
+				{user ? (
+					<div className="flex gap-4 sm:gap-5 items-center text-white font-semibold">
+						<Link to="/dashboard" className="hidden sm:inline-flex">
+							Dashboard
+						</Link>
 						<img
-							src="/images/image.png"
+							src={
+								user.image
+									? `http://localhost:5000/api/auth/image/${user.image}`
+									: "/images/image.png"
+							}
 							alt="company logo"
-							className="h-8 w-8 cursor-pointer rounded-full"
+							className="h-9 w-9 cursor-pointer rounded-full flex-shrink-0"
 							onClick={() => dispatch(logout())}
 						/>
 					</div>
 				) : (
-					<div className="flex gap-2 sm:gap-4 items-center text-white font-semibold">
-						<FaRegSave className="h-6 w-6" />
+					<div className="flex gap-4 sm:gap-5 items-center text-white font-semibold">
 						<Link to="/login">Login</Link>
-						<p className="hidden sm:inline-flex bg-rose-500 py-1 px-3 rounded-lg">
+						<Link
+							to="/register"
+							className="hidden sm:inline-flex bg-rose-500 py-1 px-3 rounded-lg"
+						>
 							Register
-						</p>
+						</Link>
 					</div>
 				)}
 			</div>

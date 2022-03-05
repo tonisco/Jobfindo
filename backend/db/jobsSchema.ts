@@ -14,7 +14,7 @@ const ApplicationSchema = new Schema(
 	{ timestamps: true }
 )
 
-const JobSchema = new Schema(
+const JobSchema = new Schema<JobTypes>(
 	{
 		company: {
 			ref: "Company",
@@ -33,6 +33,7 @@ const JobSchema = new Schema(
 	},
 	{ timestamps: true }
 )
+JobSchema.index({ title: "text", description: "text" })
 
 const Job = model<JobTypes>("Job", JobSchema)
 

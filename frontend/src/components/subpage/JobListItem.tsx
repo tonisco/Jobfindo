@@ -1,6 +1,7 @@
 import React from "react"
+import Moment from "react-moment"
 import { Link } from "react-router-dom"
-import { JobType } from "../types"
+import { JobType } from "../types/types"
 
 interface JobListItemProps {
 	job: JobType
@@ -11,7 +12,11 @@ const JobListItem = ({ job }: JobListItemProps) => {
 		<Link to={`/job/${job._id}`}>
 			<div className="flex gap-2 cursor-pointer main">
 				<img
-					src="/images/image.png"
+					src={
+						job.company.image
+							? `http://localhost:5000/api/auth/image/${job.company.image}`
+							: "/images/image.png"
+					}
 					className="h-20 w-20 object-contain mt-2"
 					alt="company logo"
 				/>
@@ -23,7 +28,9 @@ const JobListItem = ({ job }: JobListItemProps) => {
 					<h3>{job.location}</h3>
 					<h4 className="text-xs">currently recruiting</h4>
 					<h4 className="text-xs normal-case space-x-2 mt-2">
-						<span>20hrs ago</span>
+						<span>
+							<Moment fromNow>{job.createdAt}</Moment> -
+						</span>
 						<span className="text-sky-800">{job.total_applicants} applicants</span>
 					</h4>
 				</div>

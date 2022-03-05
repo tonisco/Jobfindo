@@ -15,18 +15,20 @@ import { upload } from "../controller/fileController"
 
 const router = Router()
 
-router.route("/").get(getJobs).post(isLoggedIn, addJob)
+router.get("/", getJobs)
 
-router.get("/company", isLoggedIn, companyJobs)
+router.route("/company").get(isLoggedIn, companyJobs).post(isLoggedIn, addJob)
 
-router.get("/company/:id", isLoggedIn, companyJob)
+router
+	.route("/company/:id")
+	.get(isLoggedIn, companyJob)
+	.post(isLoggedIn, editJob)
+	.delete(isLoggedIn, deleteJob)
 
 router.post("/apply/:id", upload.single("file"), applyJob)
 
-router.get("/downloadcv/:name", isLoggedIn, downloadCv)
+router.get("/downloadcv/:name", downloadCv)
 
-router.route("/:id").post(isLoggedIn, editJob).get(getJob).delete(isLoggedIn, deleteJob)
+router.route("/:id").get(getJob)
 
 export default router
-
-// added back(grid fs, routes, schema), front(api,form,app. det, connect to redux,spinner,table re-use,page)

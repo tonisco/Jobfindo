@@ -1,6 +1,6 @@
 import React, { Dispatch } from "react"
 import { AiOutlineClose } from "react-icons/ai"
-import { ApplicationTypes } from "../types"
+import { ApplicationTypes } from "../types/types"
 
 interface ApplicationDetailsProps {
 	application: ApplicationTypes
@@ -41,7 +41,13 @@ const ApplicationDetails = ({ application, setSelected, setIsOpen }: Application
 				<h3 className="font-bold">Cover Letter</h3>
 				<h4>{application.cover_letter}</h4>
 			</div>
-			<button className="bg-rose-500 px-4 py-1 rounded-lg text-white">Download CV</button>
+			<a
+				href={`http://localhost:5000/api/jobs/downloadcv/${application.cv}`}
+				download={application.cv}
+				className="bg-rose-500 px-4 py-1 rounded-lg text-white"
+			>
+				Download CV
+			</a>
 		</main>
 	)
 }

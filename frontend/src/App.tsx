@@ -5,6 +5,7 @@ import ApplicationPage from "./pages/ApplicationPage"
 import DashboardPage from "./pages/DashboardPage"
 import JobPage from "./pages/JobPage"
 import LoginPage from "./pages/LoginPage"
+import RegisterPage from "./pages/RegisterPage"
 
 function App() {
 	return (
@@ -15,6 +16,7 @@ function App() {
 					<Route path="/dashboard" element={<DashboardPage />} />
 					<Route path="/dashboard/job/:id" element={<ApplicationPage />} />
 					<Route path="/login" element={<LoginPage />} />
+					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/job/:id" element={<JobPage />} />
 					<Route path="/" element={<JobPage />} />
 				</Routes>

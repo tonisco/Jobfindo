@@ -5,7 +5,7 @@ import parse from "html-react-parser"
 import { useGetJobByIdQuery } from "../../app/api"
 import { useParams } from "react-router-dom"
 import Toast, { toastError } from "../ui/Toast"
-import { ErrorData } from "../types"
+import { ErrorData } from "../types/types"
 import Spinner from "../ui/Spinner"
 import Moment from "react-moment"
 
@@ -41,9 +41,13 @@ const JobDetails = ({ setIsOpen, job }: JobDetailsProps) => {
 
 	useEffect(() => {
 		const currentDate = new Date().getTime() / 1000
-		if (data && data.applicationDeadline) {
-			let expireDate = new Date(data.applicationDeadline).getTime() / 1000
-			setHasExpired(currentDate > expireDate)
+		if (data) {
+			if (data.applicationDeadline) {
+				let expireDate = new Date(data.applicationDeadline).getTime() / 1000
+				setHasExpired(currentDate > expireDate)
+			} else {
+				setHasExpired(false)
+			}
 		}
 	}, [data])
 
@@ -102,13 +106,19 @@ const JobDetails = ({ setIsOpen, job }: JobDetailsProps) => {
 								</div>
 							)}
 							<div className="py-2 space-y-2 normal-case tracking-wide flex flex-col gap-2">
-								{parse(data.description)}
+								<div className="details w-full max-w-[95%]">
+									{parse(data.description)}
+								</div>
 								<div className="space-y-3 mt-4">
 									<h1 className="font-bold text-xl">About the Company</h1>
 									<div className="flex gap-3 items-center text-lg capitalize">
 										<img
 											className="h-20 w-20 object-contain"
-											src="/images/image.png"
+											src={
+												data.company.image
+													? `http://localhost:5000/api/auth/image/${data.company.image}`
+													: "/images/image.png"
+											}
 											alt="company logo"
 										/>
 										<h3 className="font-bold">{data.company.name}</h3>

@@ -37,7 +37,19 @@
 }
 
 .details > * {
-	@apply list-disc list-inside space-y-1;
+	@apply list-disc list-inside space-y-1 max-w-[98%] mb-2;
+}
+
+.details > h1 {
+	@apply text-3xl;
+}
+
+.details > h2 {
+	@apply text-2xl;
+}
+
+.details > h3 {
+	@apply text-xl;
 }
 
 @-webkit-keyframes scale-up-center {

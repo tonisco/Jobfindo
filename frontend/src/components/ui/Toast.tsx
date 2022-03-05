@@ -37,6 +37,7 @@ const Toast = () => {
 			rtl={false}
 			pauseOnFocusLoss
 			draggable
+			className="!z-[9999999]"
 		/>
 	)
 }

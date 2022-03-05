@@ -2,21 +2,39 @@ import { RequestHandler } from "express"
 import asyncHandler from "express-async-handler"
 import { cvBucket } from "../db/config"
 import Job from "../db/jobsSchema"
-import { ApplicationTypes, JobInput, JobTypes } from "../db/types"
+import { ApplicationTypes, JobInput } from "../db/types"
 
 // desc: get all jobs
 // route: GET /api/jobs
 // access: public
-const getJobs: RequestHandler = asyncHandler(async (req, res) => {
-	try {
-		const job = await Job.find().sort({ createdAt: "desc" }).populate("company", "-password")
-		res.status(200).json({ data: job })
-	} catch (error) {
-		let e = (error as Error).message
-		res.status(500)
-		throw new Error(e)
+const getJobs: RequestHandler<{}, {}, {}, { s: string; page: string }> = asyncHandler(
+	async (req, res) => {
+		try {
+			const { s, page } = req.query
+			const limit = 10
+			let skip = (+page - 1) * limit
+
+			let search = {}
+			if (s && s.length > 2) {
+				search = { $text: { $search: s } }
+			}
+			const totalJobs = await Job.countDocuments(search)
+			const numPages = Math.ceil(totalJobs / limit)
+			const job = await Job.find(search)
+				.sort({ createdAt: "desc" })
+				.select("-application")
+				.populate("company", "-password -email")
+				.limit(limit)
+				.skip(skip)
+
+			res.status(200).json({ data: job, totalJobs, numPages })
+		} catch (error) {
+			let e = (error as Error).message
+			res.status(500)
+			throw new Error(e)
+		}
 	}
-})
+)
 
 // desc get single job
 // route get /api/jobs/:id
@@ -24,7 +42,9 @@ const getJobs: RequestHandler = asyncHandler(async (req, res) => {
 const getJob: RequestHandler<{ id: string }> = asyncHandler(async (req, res) => {
 	try {
 		const { id } = req.params
-		const job = await Job.findById(id).populate("company", "-password")
+		const job = await Job.findById(id)
+			.select("-application")
+			.populate("company", "-password -email")
 		if (!job) {
 			res.status(404)
 			throw new Error("Job not found")
@@ -120,6 +140,14 @@ const deleteJob: RequestHandler<any> = asyncHandler(async (req, res) => {
 			res.status(404)
 			throw new Error(`Job with id-${id} does not exist`)
 		}
+		job.application.map(async (app) => {
+			const cvs = await cvBucket.find({ filename: app.cv }).toArray()
+			if (cvs && cvs.length > 0) {
+				cvs.map(async (item) => {
+					await cvBucket.delete(item._id)
+				})
+			}
+		})
 		await job.delete()
 		res.status(200).json({ message: "Job successfully deleted" })
 	} catch (error) {
@@ -155,16 +183,27 @@ const applyJob: RequestHandler<{ id: string }, {}, ApplicationTypes> = asyncHand
 //desc: get company job post
 //route: GET /api/jobs/company
 //access private
-const companyJobs: RequestHandler<{}> = asyncHandler(async (req, res) => {
-	try {
-		const jobs = await Job.find({ company: req.user })
-		res.status(200).json({ data: jobs })
-	} catch (error) {
-		const err = (error as Error).message
-		res.status(500)
-		throw new Error(err)
+const companyJobs: RequestHandler<any, any, any, { page: string }> = asyncHandler(
+	async (req, res) => {
+		try {
+			const { page } = req.query
+			const limit = 10
+			const skip = (+page - 1) * limit
+			const totalJobs = await Job.countDocuments({ company: req.user })
+			const numPages = Math.ceil(totalJobs / limit)
+
+			const jobs = await Job.find({ company: req.user })
+				.skip(skip)
+				.limit(limit)
+				.sort({ createdAt: "desc" })
+			res.status(200).json({ data: jobs, totalJobs, numPages })
+		} catch (error) {
+			const err = (error as Error).message
+			res.status(500)
+			throw new Error(err)
+		}
 	}
-})
+)
 
 //desc: get company job post
 //route: GET /api/jobs/company/:id

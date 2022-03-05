@@ -71,18 +71,19 @@ const login: RequestHandler<{}, {}, { email: string; password: string }> = async
 // access: Private
 const editDetails: RequestHandler<any, {}, CompanyInput> = asyncHandler(async (req, res, next) => {
 	try {
-		const { companyDetails, email, name, numberOfEmployees } = req.body
+		const { companyDetails, name, numberOfEmployees } = req.body
 		const company = await Company.findById(req.user._id)
 		if (company) {
 			company.companyDetails = companyDetails
-			company.email = email
 			company.name = name
 			company.numberOfEmployees = numberOfEmployees
 			if (req.file) {
 				if (company.image) {
 					const hasImage = await imageBucket.find({ filename: company.image }).toArray()
 					if (hasImage && hasImage.length > 0) {
-						await imageBucket.delete(hasImage[0]._id)
+						hasImage.map(async (item) => {
+							await imageBucket.delete(item._id)
+						})
 					}
 				}
 				company.image = req.file.filename
@@ -92,7 +93,7 @@ const editDetails: RequestHandler<any, {}, CompanyInput> = asyncHandler(async (r
 			res.status(201).json({
 				data: {
 					companyDetails,
-					email,
+					email: company.email,
 					name,
 					numberOfEmployees,
 					token,

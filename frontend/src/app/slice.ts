@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import axios, { AxiosError } from "axios"
-import { LoginInput, SignupInput, UserDetails } from "../components/types"
+import { RootState } from "./store"
+import { LoginInput, UserDetails } from "../components/types/types"
 
 export interface Data {
 	data: UserDetails
@@ -16,7 +17,7 @@ export const login = createAsyncThunk<Data, LoginInput, { rejectValue: UserError
 	async (input, { rejectWithValue }) => {
 		try {
 			const config = {
-				headers: { "Content-Type": "application/json", Accept: "application/json" },
+				headers: { "Content-Type": "application/json" },
 			}
 
 			const { data } = await axios.post("http://localhost:5000/api/auth/login", input, config)
@@ -31,15 +32,19 @@ export const login = createAsyncThunk<Data, LoginInput, { rejectValue: UserError
 	}
 )
 
-export const signup = createAsyncThunk<Data, SignupInput, { rejectValue: UserErrors }>(
+export const signup = createAsyncThunk<Data, FormData, { rejectValue: UserErrors }>(
 	"users/signup",
 	async (input, { rejectWithValue }) => {
 		try {
 			const config = {
-				headers: { "Content-Type": "application/json", Accept: "application/json" },
+				headers: { "Content-Type": "multipart/form-data" },
 			}
 
-			const { data } = await axios.post("http://localhost:5000/api/auth/login", input, config)
+			const { data } = await axios.post(
+				"http://localhost:5000/api/auth/register",
+				input,
+				config
+			)
 
 			return data
 		} catch (error: any) {
@@ -53,17 +58,40 @@ export const signup = createAsyncThunk<Data, SignupInput, { rejectValue: UserErr
 	}
 )
 
+export const updateDetails = createAsyncThunk<Data, FormData, { rejectValue: UserErrors }>(
+	"users/update",
+	async (input, { getState, rejectWithValue }) => {
+		try {
+			const config = { headers: { "Content-Type": "multipart/form-data", authorization: "" } }
+			const state = getState() as RootState
+			const user = state.User.user
+			if (user) {
+				config.headers.authorization = `Bearer ${user.token}`
+			}
+
+			const { data } = await axios.post("http://localhost:5000/api/auth/user", input, config)
+			return data
+		} catch (error: any) {
+			let err: AxiosError<UserErrors> = error
+			if (!err.response) {
+				throw error
+			}
+			return rejectWithValue(err.response.data)
+		}
+	}
+)
+
 export interface UserTypes {
 	loading: boolean
 	error: string
-	user: UserDetails
+	user: UserDetails | undefined
 	message: string
 }
 
 const initialState: UserTypes = {
 	loading: false,
 	error: "",
-	user: {},
+	user: undefined,
 	message: "",
 }
 
@@ -76,7 +104,7 @@ const userSlice = createSlice({
 			state.error = ""
 		},
 		logout(state) {
-			state.user = {}
+			state.user = undefined
 		},
 	},
 	extraReducers: (build) => {
@@ -92,7 +120,6 @@ const userSlice = createSlice({
 			state.loading = false
 			if (action.payload) {
 				state.error = action.payload.message
-				console.log(action)
 			} else {
 				state.error = action.error.message!
 			}
@@ -112,6 +139,14 @@ const userSlice = createSlice({
 			} else {
 				state.error = error.message!
 			}
+		})
+		build.addCase(updateDetails.pending, (state) => {
+			state.loading = true
+		})
+		build.addCase(updateDetails.fulfilled, (state, { payload }) => {
+			state.loading = false
+			state.message = payload.message
+			state.user = payload.data
 		})
 	},
 })

@@ -5,12 +5,13 @@ import { editDetails, getImage, login, register } from "../controller/userContro
 
 const router = Router()
 
-router.post("/register", register)
+router.post("/register", upload.single("image"), register)
 
 router.post("/login", login)
 
 router.get("/image/:name", getImage)
-// ts ignore
+
+// @ts-ignore
 router.post("/user", isLoggedIn, upload.single("image"), editDetails)
 
 export default router

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { ApplicationTypes, JobInput, JobType } from "../components/types"
+import { JobData, JobInput, JobType } from "../components/types/types"
 import { RootState } from "./store"
 
 export const getJobsApi = createApi({
@@ -8,9 +8,14 @@ export const getJobsApi = createApi({
 		baseUrl: "http://localhost:5000/api/jobs",
 	}),
 	endpoints: (builder) => ({
-		getAllJobs: builder.query<JobType[], null>({
-			query: () => "/",
-			transformResponse: (data: { data: JobType[] }) => data.data,
+		getAllJobs: builder.query<JobData, { s?: string; page?: string } | undefined>({
+			query: (input) => {
+				const query = { s: "", page: "1" }
+				if (input && input.page) query.page = input.page
+				if (input && input.s) query.s = input.s
+				const name = new URLSearchParams(query)
+				return `?${name}`
+			},
 		}),
 	}),
 })
@@ -23,18 +28,22 @@ export const getJobApi = createApi({
 			query: (id) => `/${id}`,
 			transformResponse: (data: { data: JobType }) => data.data,
 		}),
-		applyJob: builder.mutation<JobType, ApplicationTypes>({ query: (id) => `/${id}` }),
+		applyJob: builder.mutation<{ message: string }, { data: FormData; id: string }>({
+			query: (input) => ({ url: `/apply/${input.id}`, method: "POST", body: input.data }),
+		}),
 	}),
 })
 
 export const getCompanyJobsApi = createApi({
 	reducerPath: "companyJobs",
+	tagTypes: ["companyJobs"],
 	baseQuery: fetchBaseQuery({
 		baseUrl: "http://localhost:5000/api/jobs/company",
 		prepareHeaders(headers, getState) {
 			const state = getState.getState() as RootState
-			const token = state.User.user.token
-			if (token) {
+			const user = state.User.user
+			if (user) {
+				const token = user.token
 				headers.set("authorization", `Bearer ${token}`)
 			}
 			headers.set("Content-Type", "application/json")
@@ -42,23 +51,38 @@ export const getCompanyJobsApi = createApi({
 		},
 	}),
 	endpoints: (builder) => ({
-		companyJobs: builder.query<JobType[], null>({
-			query: () => ({ url: "/" }),
-			transformResponse: (data: { data: JobType[] }) => data.data,
+		companyJobs: builder.query<JobData, { page?: string }>({
+			query: (input) => {
+				let page = "1"
+				if (input && input.page) page = input.page
+				return { url: `/?page=${page}` }
+			},
+			providesTags: (result, err, arg) =>
+				result
+					? [
+							...result.data.map(({ _id }) => ({
+								type: "companyJobs" as const,
+								id: _id,
+							})),
+							"companyJobs",
+					  ]
+					: ["companyJobs"],
 		}),
 		companyJobsCreate: builder.mutation<{ message: string }, { input: JobInput }>({
-			query: (input) => ({ url: "", method: "POST", body: input }),
+			query: (input) => ({ url: "", method: "POST", body: input.input }),
 			transformResponse: (data: { data: { message: string } }) => data.data,
+			invalidatesTags: ["companyJobs"],
 		}),
 		companyJobsEdit: builder.mutation<{ message: string }, { id: string; input: JobInput }>({
 			query: (data) => ({ url: `/${data.id}`, method: "POST", body: data.input }),
-			transformResponse: (data: { data: { message: string } }) => data.data,
+			invalidatesTags: (result, err, arg) => [{ type: "companyJobs", id: arg.id }],
 		}),
 		companyJobDelete: builder.mutation<{ message: string }, { id: string }>({
 			query: (id) => ({
-				url: `/${id}`,
+				url: `/${id.id}`,
 				method: "DELETE",
 			}),
+			invalidatesTags: ["companyJobs"],
 		}),
 	}),
 })
@@ -68,8 +92,9 @@ export const getCompanyJobApi = createApi({
 		baseUrl: "http://localhost:5000/api/jobs/company",
 		prepareHeaders: (headers, { getState }) => {
 			const state = getState() as RootState
-			let token = state.User.user.token
-			if (token) {
+			const user = state.User.user
+			if (user) {
+				let token = user.token
 				headers.set("authorization", `Bearer ${token}`)
 			}
 			return headers

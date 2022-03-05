@@ -1,54 +1,176 @@
-import React, { Dispatch, useEffect, useState } from "react"
+import React, { Dispatch, FormEvent, useCallback, useEffect, useState } from "react"
 import { AiOutlineClose } from "react-icons/ai"
 import ReactQuill from "react-quill"
 import "react-quill/dist/quill.snow.css"
 import { Link } from "react-router-dom"
-import { JobType } from "../types"
+import {
+	useCompanyJobDeleteMutation,
+	useCompanyJobsCreateMutation,
+	useCompanyJobsEditMutation,
+} from "../../app/api"
+import { ErrorData, JobType } from "../types/types"
+import { toastError, toastSuccess } from "../ui/Toast"
+import DetailsInput from "./DetailsInput"
+import DetailsSelect from "./DetailsSelect"
 
 interface JobFormProps {
 	setIsOpen: Dispatch<boolean>
 	job: JobType | undefined
 	setSelected: Dispatch<string>
 	selected: string
+	isOpen: boolean
 }
 
-const JobForm = ({ setIsOpen, job, setSelected, selected }: JobFormProps) => {
+const JobForm = ({ setIsOpen, job, setSelected, selected, isOpen }: JobFormProps) => {
 	const [title, setTitle] = useState("")
 	const [location, setLocation] = useState("")
-	const [type, setType] = useState("")
+	const [type, setType] = useState("On-site")
 	const [payRange, setPayRange] = useState("")
-	const [length, setLength] = useState("")
-	const [level, setLevel] = useState("")
+	const [length, setLength] = useState("Full Time")
+	const [level, setLevel] = useState("Internship Level")
+	const [deadline, setDeadline] = useState("")
 	const [description, setDescription] = useState("")
 
-	const close = () => {
+	const [
+		editJob,
+		{ error: editError, isLoading: editLoading, data: editData, isSuccess: editSuccess },
+	] = useCompanyJobsEditMutation()
+
+	const [
+		createJob,
+		{
+			error: createError,
+			isLoading: createLoading,
+			data: createData,
+			isSuccess: createSuccess,
+		},
+	] = useCompanyJobsCreateMutation()
+
+	const [
+		deleteJob,
+		{
+			error: deleteError,
+			data: deleteData,
+			isLoading: deleteLoading,
+			isSuccess: deleteSuccess,
+		},
+	] = useCompanyJobDeleteMutation()
+
+	const close = useCallback(() => {
 		setIsOpen(false)
 		setSelected("")
+	}, [setIsOpen, setSelected])
+
+	const clearInputs = () => {
+		setTitle("")
+		setDescription("")
+		setLength("Full Time")
+		setLevel("Internship Level")
+		setLocation("")
+		setDeadline("")
+		setType("On-site")
+		setPayRange("")
 	}
 
 	useEffect(() => {
 		if (job) {
-			const { description, length, level, location, title, type, pay_range } = job
+			const {
+				description,
+				length,
+				level,
+				location,
+				title,
+				type,
+				pay_range,
+				applicationDeadline,
+			} = job
+			let date = applicationDeadline ? applicationDeadline.toString().split(".")[0] : ""
 			setTitle(title)
 			setDescription(description)
 			setLength(length)
 			setLevel(level)
 			setLocation(location)
 			setType(type)
+			setDeadline(date)
 			setPayRange(pay_range)
 		} else {
-			setTitle("")
-			setDescription("")
-			setLength("")
-			setLevel("")
-			setLocation("")
-			setType("")
-			setPayRange("")
+			clearInputs()
 		}
 	}, [job])
 
+	const submitJob = (e: FormEvent) => {
+		e.preventDefault()
+		if (title.length < 3) {
+			return toastError("Title must be at least 4 characters")
+		}
+		if (location.length < 3) {
+			return toastError("Location must be at least 4 characters")
+		}
+		if (description.length < 19) {
+			return toastError("Description must be at least 20 characters")
+		}
+		const input = {
+			description,
+			location,
+			length,
+			level,
+			title,
+			pay_range: payRange,
+			applicationDeadline: deadline,
+			type,
+		}
+		if (job) {
+			editJob({ id: job._id, input })
+		} else {
+			createJob({ input })
+		}
+	}
+
+	useEffect(() => {
+		if (editError) {
+			let err = (editError as ErrorData).data.message
+			toastError(err)
+		}
+
+		if (createError) {
+			let err = (createError as ErrorData).data.message
+			toastError(err)
+		}
+
+		if (deleteError) {
+			let err = (deleteError as ErrorData).data.message
+			toastError(err)
+		}
+	}, [editError, createError, deleteError])
+
+	useEffect(() => {
+		if (editData) toastSuccess(editData.message)
+
+		if (createData) toastSuccess(createData.message)
+
+		if (deleteData) toastSuccess(deleteData.message)
+
+		if (editSuccess || createSuccess || deleteSuccess) {
+			clearInputs()
+			close()
+		}
+	}, [editData, createData, editSuccess, createSuccess, deleteSuccess, deleteData, close])
+
+	const typeData = ["On-site", "Remote", "Hybrid"]
+	const lengthData = ["Full Time", "Part Time"]
+	const levelData = [
+		"Internship Level",
+		"Entry level",
+		"Mid-Senior level",
+		"Senior level",
+		"Executive level",
+	]
+
 	return (
-		<form className="flex flex-col gap-4 items-center w-[85vw] md:w-[70vw] lg:w-[50vw] py-7">
+		<form
+			className="flex flex-col gap-4 items-center w-[85vw] md:w-[70vw] lg:w-[50vw] py-7"
+			onSubmit={submitJob}
+		>
 			<AiOutlineClose
 				className="cursor-pointer absolute right-5 top-5 text-xl"
 				onClick={close}
@@ -63,88 +185,42 @@ const JobForm = ({ setIsOpen, job, setSelected, selected }: JobFormProps) => {
 				</Link>
 			)}
 			<h1 className="text-2xl font-bold">{selected ? "Job Edit Form" : "Job Create Form"}</h1>
-			<div className="flex flex-col w-[85%] md:w-[70%]">
-				<label htmlFor="title" className="text-sky-800 font-bold">
-					Job Title
-				</label>
-				<input
-					type="text"
-					id="title"
-					className="input-2"
-					value={title}
-					onChange={(e) => setTitle(e.target.value)}
-				/>
-			</div>
-			<div className="flex flex-col w-[85%] md:w-[70%]">
-				<label htmlFor="location" className="text-sky-800 font-bold">
-					Location
-				</label>
-				<input
-					type="text"
-					id="location"
-					className="input-2"
-					value={location}
-					onChange={(e) => setLocation(e.target.value)}
-				/>
-			</div>
-			<div className="flex flex-col w-[85%] md:w-[70%]">
-				<label htmlFor="type" className="text-sky-800 font-bold">
-					Type
-				</label>
-				<select
-					id="type"
-					className="input-2"
-					value={type}
-					onChange={(e) => setType(e.target.value)}
-				>
-					<option value="On-site">On-site</option>
-					<option value="Remote">Remote</option>
-					<option value="Hybrid">Hybrid</option>
-				</select>
-			</div>
-			<div className="flex flex-col w-[85%] md:w-[70%]">
-				<label htmlFor="pay" className="text-sky-800 font-bold">
-					Pay Range
-				</label>
-				<input
-					type="text"
-					id="pay"
-					className="input-2"
-					value={payRange}
-					onChange={(e) => setPayRange(e.target.value)}
-				/>
-			</div>
-			<div className="flex flex-col w-[85%] md:w-[70%]">
-				<label htmlFor="length" className="text-sky-800 font-bold">
-					Length
-				</label>
-				<select
-					id="length"
-					className="input-2"
-					value={length}
-					onChange={(e) => setLength(e.target.value)}
-				>
-					<option value="Full Time">Full Time</option>
-					<option value="Part Time">Part Time</option>
-				</select>
-			</div>
-			<div className="flex flex-col w-[85%] md:w-[70%]">
-				<label htmlFor="level" className="text-sky-800 font-bold">
-					Level
-				</label>
-				<select
-					id="level"
-					className="input-2"
-					value={level}
-					onChange={(e) => setLevel(e.target.value)}
-				>
-					<option value="Internship Level">Internship Level</option>
-					<option value="Entry level">Entry level</option>
-					<option value="Mid-Senior level">Mid-Senior level</option>
-					<option value="Senior level">Senior level</option>
-					<option value="Executive level">Executive level</option>
-				</select>
-			</div>
+			<DetailsInput changeValue={setTitle} id="title" label="Job Title" value={title} />
+			<DetailsInput
+				changeValue={setLocation}
+				id="location"
+				label="location"
+				value={location}
+			/>
+			<DetailsSelect
+				id="type"
+				label="Type"
+				options={typeData}
+				setValue={setType}
+				value={type}
+			/>
+			<DetailsInput changeValue={setPayRange} id="pay" label="Pay Range" value={payRange} />
+			<DetailsSelect
+				id="length"
+				label="Length"
+				options={lengthData}
+				setValue={setLength}
+				value={length}
+			/>
+			<DetailsSelect
+				id="level"
+				label="Level"
+				options={levelData}
+				setValue={setLevel}
+				value={level}
+			/>
+			<DetailsInput
+				changeValue={setDeadline}
+				id="date"
+				label="Application Deadline"
+				type="datetime-local"
+				value={deadline}
+			/>
 			<div className="flex flex-col w-[85%] md:w-[70%]">
 				<label htmlFor="description" className="text-sky-800 font-bold">
 					Description
@@ -156,12 +232,25 @@ const JobForm = ({ setIsOpen, job, setSelected, selected }: JobFormProps) => {
 					className="h-[26rem] overflow-y-hidden input-3"
 				/>
 			</div>
-			<button
-				type="submit"
-				className="bg-sky-800 w-[85%] md:w-[70%] text-white font-bold py-1 hover:bg-sky-900 rounded-md"
-			>
-				ADD
-			</button>
+			<div className="flex justify-between w-[85%] md:w-[70%]">
+				<button
+					type="submit"
+					className="bg-sky-800 text-white font-bold py-2 px-4 hover:bg-sky-900 rounded-md disabled:bg-sky-900"
+					disabled={editLoading ? editLoading : createLoading}
+				>
+					SAVE
+				</button>
+				<button
+					type="button"
+					className="bg-red-600 text-white font-bold py-2 px-4 hover:bg-red-700 rounded-md disabled:bg-red-800"
+					disabled={
+						editLoading ? editLoading : createLoading ? createLoading : deleteLoading
+					}
+					onClick={() => (job ? deleteJob({ id: job._id }) : close())}
+				>
+					{job ? "DELETE" : "CANCEL"}
+				</button>
+			</div>
 		</form>
 	)
 }

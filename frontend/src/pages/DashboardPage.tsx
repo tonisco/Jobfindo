@@ -1,37 +1,52 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { FaPlus } from "react-icons/fa"
 import { FiUser } from "react-icons/fi"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, useSearchParams } from "react-router-dom"
 import { Cell, Column } from "react-table"
 import { useCompanyJobsQuery } from "../app/api"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
-import { logout } from "../app/slice"
+import { clearMessage, logout } from "../app/slice"
 import DetailsForm from "../components/form/DetailsForm"
 import JobForm from "../components/form/JobForm"
-import { ErrorData, JobType } from "../components/types"
+import { ErrorData, JobType } from "../components/types/types"
 import Modal from "../components/ui/Modal"
 import Pagination from "../components/ui/Pagination"
 import Spinner from "../components/ui/Spinner"
 import Table from "../components/ui/Table"
-import Toast, { toastError } from "../components/ui/Toast"
+import Toast, { toastError, toastSuccess } from "../components/ui/Toast"
 
 const DashboardPage = () => {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isDetails, setIsDetails] = useState(false)
 	const [selected, setSelected] = useState("")
 	const [selectedJob, setSelectedJob] = useState<JobType>()
+	const [page, setPage] = useState<string>()
 
-	const { user } = useAppSelector((state) => state.User)
+	const [searchParams] = useSearchParams()
+
+	const { user, error: userError, message } = useAppSelector((state) => state.User)
 	const dispatch = useAppDispatch()
 	const navigate = useNavigate()
 
-	const { data, error, isError, isLoading } = useCompanyJobsQuery(null)
+	const { data, error, isError, isLoading } = useCompanyJobsQuery({ page })
 
 	useEffect(() => {
-		if (!user.name) {
+		if (!user) {
 			navigate("/login")
 		}
 	}, [user, navigate])
+
+	useEffect(() => {
+		if (userError) {
+			if (userError === "Not authorized, token failed") {
+				dispatch(logout())
+			} else toastError(userError)
+		}
+		if (message) {
+			toastSuccess(message)
+		}
+		dispatch(clearMessage())
+	}, [userError, dispatch, message])
 
 	useEffect(() => {
 		if (error) {
@@ -44,7 +59,7 @@ const DashboardPage = () => {
 
 	useEffect(() => {
 		if (selected) {
-			let job = data?.find((item) => item._id === selected)
+			let job = data?.data.find((item) => item._id === selected)
 			if (job) {
 				setSelectedJob(job)
 			} else toastError(`Job with id ${selected} was not found`)
@@ -52,6 +67,13 @@ const DashboardPage = () => {
 			setSelectedJob(undefined)
 		}
 	}, [selected, data])
+
+	useEffect(() => {
+		const currPage = searchParams.get("page")
+		if (currPage) {
+			setPage(currPage)
+		}
+	}, [searchParams])
 
 	const columns = useMemo<Column<JobType>[]>(
 		() => [
@@ -91,6 +113,7 @@ const DashboardPage = () => {
 		<>
 			<Modal isOpen={isOpen} setIsOpen={setIsOpen} setSelected={setSelected}>
 				<JobForm
+					isOpen={isOpen}
 					setIsOpen={setIsOpen}
 					job={selectedJob}
 					setSelected={setSelected}
@@ -122,14 +145,16 @@ const DashboardPage = () => {
 					<h1 className="text-3xl text-center py-4 capitalize text-gray-900">
 						Server Error
 					</h1>
-				) : data && data.length > 0 ? (
-					<Table data={data} columns={columns} />
+				) : data && data.data.length > 0 ? (
+					<Table data={data.data} columns={columns} />
 				) : (
 					<h1 className="text-3xl text-center py-4 capitalize text-gray-900 font-semibold">
 						You have not listed any job
 					</h1>
 				)}
-				<Pagination />
+				{data && data.numPages && data.numPages > 1 && (
+					<Pagination pages={data?.numPages} />
+				)}
 			</main>
 		</>
 	)

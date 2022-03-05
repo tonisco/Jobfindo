@@ -1,6 +1,6 @@
 import React from "react"
 import { useTable } from "react-table"
-import { ApplicationTypes, JobType } from "../types"
+import { ApplicationTypes, JobType } from "../types/types"
 
 export interface columnsType {
 	job_details: string
