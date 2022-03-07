@@ -4,6 +4,7 @@ import cors from "cors"
 import db from "./db/config"
 import jobRoute from "./routes/jobRoute"
 import userRoute from "./routes/userRoute"
+import path from "path"
 
 const app = express()
 
@@ -23,6 +24,14 @@ app.use("/api/auth", userRoute)
 app.get("/api", (req, res) => {
 	res.json("Welcome")
 })
+
+if (process.env.NODE_ENV === "production") {
+	app.use(express.static(path.join(__dirname, "../frontend/build")))
+
+	app.get("*", (req, res) => {
+		res.sendFile(path.resolve(__dirname, "../", "frontend", "build", "index.html"))
+	})
+}
 
 const notFound: RequestHandler = (req, res, next) => {
 	const error = new Error(`Not Found - ${req.originalUrl}`)

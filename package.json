@@ -7,7 +7,8 @@
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"server": "ts-node-dev --respawn --transpile-only backend/index.ts",
 		"front": "npm start --prefix frontend",
-		"dev": "concurrently \"npm run front\" \"npm run server\""
+		"dev": "concurrently \"npm run front\" \"npm run server\"",
+		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build --prefix frontend"
 	},
 	"author": "",
 	"license": "ISC",
