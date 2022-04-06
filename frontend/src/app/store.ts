@@ -10,7 +10,6 @@ import {
 	persistStore,
 } from "redux-persist"
 import storage from "redux-persist/lib/storage"
-import counterReducer from "../features/counter/counterSlice"
 import { getJobApi, getJobsApi, getCompanyJobsApi, getCompanyJobApi } from "./api"
 import User from "./slice"
 
@@ -21,7 +20,6 @@ const persistConfig = {
 const persistReducers = persistReducer(persistConfig, User)
 
 const reducer = combineReducers({
-	counter: counterReducer,
 	[getJobsApi.reducerPath]: getJobsApi.reducer,
 	[getJobApi.reducerPath]: getJobApi.reducer,
 	[getCompanyJobsApi.reducerPath]: getCompanyJobsApi.reducer,

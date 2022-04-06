@@ -1,5 +1,6 @@
 import React from "react"
 import { Route, Routes } from "react-router-dom"
+import Auth from "./components/auth/Auth"
 import Header from "./components/ui/Header"
 import ApplicationPage from "./pages/ApplicationPage"
 import DashboardPage from "./pages/DashboardPage"
@@ -13,8 +14,10 @@ function App() {
 			<Header />
 			<div className="h-[calc(100vh-70px)] bg-gray-100">
 				<Routes>
-					<Route path="/dashboard" element={<DashboardPage />} />
-					<Route path="/dashboard/job/:id" element={<ApplicationPage />} />
+					<Route element={<Auth />}>
+						<Route path="/dashboard" element={<DashboardPage />} />
+						<Route path="/dashboard/job/:id" element={<ApplicationPage />} />
+					</Route>
 					<Route path="/login" element={<LoginPage />} />
 					<Route path="/register" element={<RegisterPage />} />
 					<Route path="/job/:id" element={<JobPage />} />

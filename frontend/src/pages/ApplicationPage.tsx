@@ -1,8 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import { Cell, Column } from "react-table"
 import { useCompanyJobQuery } from "../app/api"
-import { useAppDispatch, useAppSelector } from "../app/hooks"
+import { useAppDispatch } from "../app/hooks"
 import { logout } from "../app/slice"
 import ApplicationDetails from "../components/subpage/ApplicationDetails"
 import { ApplicationTypes, ErrorData } from "../components/types/types"
@@ -13,7 +13,6 @@ import Toast, { toastError } from "../components/ui/Toast"
 
 const ApplicationPage = () => {
 	const { id } = useParams()
-	const navigate = useNavigate()
 
 	const [selected, setSelected] = useState("")
 	const [application, setApplication] = useState<ApplicationTypes>()
@@ -21,14 +20,7 @@ const ApplicationPage = () => {
 
 	const { data, error, isLoading, isError } = useCompanyJobQuery(id!, { skip: !id })
 
-	const { user } = useAppSelector((state) => state.User)
 	const dispatch = useAppDispatch()
-
-	useEffect(() => {
-		if (!user) {
-			navigate("/login")
-		}
-	}, [user, navigate])
 
 	useEffect(() => {
 		if (error) {

@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react"
 import { FaPlus } from "react-icons/fa"
 import { FiUser } from "react-icons/fi"
-import { useNavigate, useSearchParams } from "react-router-dom"
+import { useSearchParams } from "react-router-dom"
 import { Cell, Column } from "react-table"
 import { useCompanyJobsQuery } from "../app/api"
-import { useAppDispatch, useAppSelector } from "../app/hooks"
-import { clearMessage, logout } from "../app/slice"
+import { useAppDispatch } from "../app/hooks"
+import { logout } from "../app/slice"
 import DetailsForm from "../components/form/DetailsForm"
 import JobForm from "../components/form/JobForm"
 import { ErrorData, JobType } from "../components/types/types"
@@ -13,7 +13,7 @@ import Modal from "../components/ui/Modal"
 import Pagination from "../components/ui/Pagination"
 import Spinner from "../components/ui/Spinner"
 import Table from "../components/ui/Table"
-import Toast, { toastError, toastSuccess } from "../components/ui/Toast"
+import Toast, { toastError } from "../components/ui/Toast"
 
 const DashboardPage = () => {
 	const [isOpen, setIsOpen] = useState(false)
@@ -24,29 +24,9 @@ const DashboardPage = () => {
 
 	const [searchParams] = useSearchParams()
 
-	const { user, error: userError, message } = useAppSelector((state) => state.User)
 	const dispatch = useAppDispatch()
-	const navigate = useNavigate()
 
 	const { data, error, isError, isLoading } = useCompanyJobsQuery({ page })
-
-	useEffect(() => {
-		if (!user) {
-			navigate("/login")
-		}
-	}, [user, navigate])
-
-	useEffect(() => {
-		if (userError) {
-			if (userError === "Not authorized, token failed") {
-				dispatch(logout())
-			} else toastError(userError)
-		}
-		if (message) {
-			toastSuccess(message)
-		}
-		dispatch(clearMessage())
-	}, [userError, dispatch, message])
 
 	useEffect(() => {
 		if (error) {
@@ -55,7 +35,7 @@ const DashboardPage = () => {
 				dispatch(logout())
 			} else toastError(err)
 		}
-	}, [error, dispatch])
+	}, [dispatch, error])
 
 	useEffect(() => {
 		if (selected) {
@@ -152,9 +132,7 @@ const DashboardPage = () => {
 						You have not listed any job
 					</h1>
 				)}
-				{data && data.numPages && data.numPages > 1 && (
-					<Pagination pages={data?.numPages} />
-				)}
+				{data && data.numPages > 1 && <Pagination pages={data?.numPages} />}
 			</main>
 		</>
 	)
