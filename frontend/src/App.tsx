@@ -1,6 +1,7 @@
 import React from "react"
 import { Route, Routes } from "react-router-dom"
-import Auth from "./components/auth/Auth"
+import AlreadyAuth from "./components/auth/AlreadyAuth"
+import RequireAuth from "./components/auth/RequireAuth"
 import Header from "./components/ui/Header"
 import ApplicationPage from "./pages/ApplicationPage"
 import DashboardPage from "./pages/DashboardPage"
@@ -14,12 +15,14 @@ function App() {
 			<Header />
 			<div className="h-[calc(100vh-70px)] bg-gray-100">
 				<Routes>
-					<Route element={<Auth />}>
+					<Route element={<RequireAuth />}>
 						<Route path="/dashboard" element={<DashboardPage />} />
 						<Route path="/dashboard/job/:id" element={<ApplicationPage />} />
 					</Route>
-					<Route path="/login" element={<LoginPage />} />
-					<Route path="/register" element={<RegisterPage />} />
+					<Route element={<AlreadyAuth />}>
+						<Route path="/login" element={<LoginPage />} />
+						<Route path="/register" element={<RegisterPage />} />
+					</Route>
 					<Route path="/job/:id" element={<JobPage />} />
 					<Route path="/" element={<JobPage />} />
 				</Routes>

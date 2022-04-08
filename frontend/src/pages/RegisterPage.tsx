@@ -1,5 +1,5 @@
 import React, { FormEvent, useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { Link } from "react-router-dom"
 import { useAppDispatch, useAppSelector } from "../app/hooks"
 import { clearMessage, signup } from "../app/slice"
 import AccountInput from "../components/form/AccountInput"
@@ -14,9 +14,8 @@ const RegisterPage = () => {
 	const [companyDetails, setCompanyDetails] = useState("")
 	const [image, setImage] = useState<File>()
 
-	const navigate = useNavigate()
 	const dispatch = useAppDispatch()
-	const { error, message, loading, user } = useAppSelector((state) => state.User)
+	const { error, message, loading } = useAppSelector((state) => state.User)
 
 	const submit = (e: FormEvent) => {
 		e.preventDefault()
@@ -60,12 +59,6 @@ const RegisterPage = () => {
 		}
 		dispatch(clearMessage())
 	}, [error, message, dispatch])
-
-	useEffect(() => {
-		if (user) {
-			navigate("/dashboard")
-		}
-	}, [user, navigate])
 
 	return (
 		<>

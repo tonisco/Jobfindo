@@ -10,8 +10,11 @@ const Header = () => {
 
 	return (
 		<div className=" bg-sky-800">
-			<div className="flex justify-between max-w-5xl px-4 lg:px-0 py-4 items-center mx-auto gap-4">
-				<Link to="/" className="text-xl md:text-3xl text-rose-500 font-bold mont">
+			<div className="flex justify-between max-w-5xl px-2 sm:px-4 lg:px-0 py-4 items-center mx-auto gap-2 md:gap-4">
+				<Link
+					to="/"
+					className="text-base sm:text-xl md:text-3xl text-rose-500 font-bold mont"
+				>
 					JobFindo
 				</Link>
 				<SearchBar />
@@ -27,7 +30,7 @@ const Header = () => {
 									: "/images/image.png"
 							}
 							alt="company logo"
-							className="h-9 w-9 cursor-pointer rounded-full flex-shrink-0"
+							className="h-6 w-6 sm:h-9 sm:w-9 cursor-pointer rounded-full flex-shrink-0 flex-grow"
 							onClick={() => dispatch(logout())}
 						/>
 					</div>

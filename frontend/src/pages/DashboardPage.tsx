@@ -26,7 +26,10 @@ const DashboardPage = () => {
 
 	const dispatch = useAppDispatch()
 
-	const { data, error, isError, isLoading } = useCompanyJobsQuery({ page })
+	const { data, error, isError, isLoading } = useCompanyJobsQuery(
+		{ page },
+		{ refetchOnMountOrArgChange: true }
+	)
 
 	useEffect(() => {
 		if (error) {
@@ -107,13 +110,13 @@ const DashboardPage = () => {
 			<main className="bg-white px-2 py-5 max-w-5xl mx-auto h-full w-full">
 				<div className="w-full flex items-center justify-between">
 					<button
-						className="px-4 self-end py-1 bg-rose-500 text-white rounded-lg flex gap-2 items-center"
+						className="px-2 text-sm sm:text-base md:px-4 self-end py-1 bg-rose-500 text-white rounded-lg flex gap-2 items-center"
 						onClick={() => setIsOpen(true)}
 					>
 						<FaPlus /> <p>Create Job</p>
 					</button>
 					<button
-						className="px-4 self-end py-1 bg-rose-500 text-white rounded-lg flex gap-2 items-center"
+						className="px-2 text-sm sm:text-base md:px-4 self-end py-1 bg-rose-500 text-white rounded-lg flex gap-2 items-center"
 						onClick={() => setIsDetails(true)}
 					>
 						<FiUser /> <p>Company Details</p>
