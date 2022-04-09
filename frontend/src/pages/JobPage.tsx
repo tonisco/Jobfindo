@@ -52,7 +52,7 @@ const JobPage = () => {
 
 	useEffect(() => {
 		if (error) {
-			toastError((error as ErrorData).data.message)
+			toastError((error as ErrorData)?.data?.message)
 		}
 	}, [error])
 
@@ -87,7 +87,7 @@ const JobPage = () => {
 					</>
 				) : (
 					<h1 className="text-center text-4xl capitalize w-full pt-10 ">
-						No Jobs matches Your search
+						{search ? `No Job matches ${search}` : "There are no available Jobs"}
 					</h1>
 				)}
 			</div>

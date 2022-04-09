@@ -13,8 +13,8 @@ export const getJobsApi = createApi({
 				const query = { s: "", page: "1" }
 				if (input && input.page) query.page = input.page
 				if (input && input.s) query.s = input.s
-				const name = new URLSearchParams(query)
-				return `?${name}`
+				const params = new URLSearchParams(query)
+				return `?${params}`
 			},
 		}),
 	}),

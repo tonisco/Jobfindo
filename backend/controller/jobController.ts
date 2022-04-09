@@ -10,8 +10,9 @@ import { ApplicationTypes, JobInput } from "../db/types"
 const getJobs: RequestHandler<{}, {}, {}, { s: string; page: string }> = asyncHandler(
 	async (req, res) => {
 		try {
-			const { s, page } = req.query
+			let { s, page } = req.query
 			const limit = 10
+			page = page ?? 1
 			let skip = (+page - 1) * limit
 
 			let search = {}
