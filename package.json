@@ -10,9 +10,10 @@
 		"dev": "concurrently \"npm run front\" \"npm run server\"",
 		"build-back": "tsc",
 		"build-front": "npm run build --prefix frontend",
-		"start-build": "node dist",
-		"prod-build": "concurrently \"npm run front\" \"npm run start-build\"",
-		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build-front && npm run build-back"
+		"build": "npm run build-front && npm run build-back",
+		"start-prod-server": "node dist",
+		"start-build": "npm run build && npm run start-prod-server",
+		"heroku-postbuild": "NPM_CONFIG_PRODUCTION=false npm install --prefix frontend && npm run build"
 	},
 	"author": "",
 	"license": "ISC",

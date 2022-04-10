@@ -1,1 +1,1 @@
-web: node backend/dist
+web: node dist
