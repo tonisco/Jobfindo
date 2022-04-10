@@ -1,1 +1,1 @@
-web: node start-build
+web: node backend/dist
