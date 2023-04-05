@@ -8,9 +8,9 @@
         "server": "ts-node-dev --respawn --transpile-only backend/index.ts",
         "front": "npm start --prefix frontend",
         "dev": "concurrently \"npm run front\" \"npm run server\"",
-        "build-back": "pnpm install && npx tsc",
-        "build-front": "cd frontend && pnpm install && pnpm run build",
-        "build": "npm i -g pnpm && pnpm run build-front && pnpm run build-back",
+        "build-back": "npx pnpm install && npx tsc",
+        "build-front": "cd frontend && npx pnpm install && npx pnpm run build",
+        "build": "npx pnpm run build-front && npx pnpm run build-back",
         "start": "node dist"
     },
     "author": "",
