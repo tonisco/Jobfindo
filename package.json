@@ -8,8 +8,8 @@
         "server": "ts-node-dev --respawn --transpile-only backend/index.ts",
         "front": "npm start --prefix frontend",
         "dev": "concurrently \"npm run front\" \"npm run server\"",
-        "build-back": "npm install && tsc",
-        "build-front": "npm install  --prefix && npm run build --prefix frontend",
+        "build-back": "npm install && npx tsc",
+        "build-front": "npm install --prefix frontend && npm run build --prefix frontend",
         "build": "npm run build-front && npm run build-back",
         "start": "node dist"
     },
