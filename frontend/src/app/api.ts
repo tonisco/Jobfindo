@@ -3,7 +3,7 @@ import { JobData, JobInput, JobType } from "../components/types/types"
 import { RootState } from "./store"
 
 const baseUrl =
-    process.env.NODE_ENV === "production"
+    process.env.REACT_APP_ENV === "production"
         ? "http://localhost:5000/api/jobs"
         : "/api/jobs"
 
